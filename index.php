@@ -52,7 +52,7 @@ if ( array_key_exists( "source", $props ) ) {
 	$query = new Mwapi\SimpleRequest( 'query', $params  );
 	$outcome = $wpapi->postRequest( $query );
 	
-	var_dump( $outcome );
+	#var_dump( $outcome );
 	$randomList = array();
 	
 	if ( array_key_exists( "query", $outcome ) ) {
@@ -89,9 +89,9 @@ if ( array_key_exists( "source", $props ) ) {
 		
 		if ( count( $randomList ) > 0 ) {
 			
-			$string = getRandomFromList( $randomList )." ~~~~\n";
+			$string = getRandomFromList( $randomList )." ~~~~ (PHP ".phpversion().")\n";
 			
-			var_dump( $string );
+			#var_dump( $string );
 			if ( array_key_exists( "target", $props ) ) {
 		
 				$params = array( "meta" => "tokens" );

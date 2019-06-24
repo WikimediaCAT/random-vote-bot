@@ -1,0 +1,10 @@
+{
+	"wikipedia": {
+		"url": "https://ca.wikipedia.org/w/api.php",
+                "user": "Mybot",
+                "password": "xxxx"
+	},
+	"source": "Usuari:Toniher/RandomVote/Llista",
+	"target": "Usuari:Toniher/RandomVote/Resultat"
+
+}
