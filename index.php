@@ -50,7 +50,7 @@ if ( array_key_exists( "user", $wikiconfig ) && array_key_exists( "password", $w
 
 if ( array_key_exists( "source", $props ) ) {
 	
-	$params = array( "prop" => "revisions", "rvlimit" => 1, "rvdir" => "newer", "rvprop" => "content" );
+	$params = array( "prop" => "revisions", "rvlimit" => 1, "rvdir" => "older", "rvprop" => "content" );
 	$params["titles"] = $props["source"];
 	
 	$query = new Mwapi\SimpleRequest( 'query', $params  );
