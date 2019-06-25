@@ -35,6 +35,10 @@ if ( array_key_exists( "target", $confjson ) ) {
 	$props["target"] = $confjson["target"];
 }
 
+if ( array_key_exists( "pretxt", $confjson ) ) {
+	$props["pretxt"] = $confjson["pretxt"];
+}
+
 $wpapi = Mwapi\MediawikiApi::newFromApiEndpoint( $wikiconfig["url"] );
 
 // Login
@@ -53,6 +57,7 @@ if ( array_key_exists( "source", $props ) ) {
 	$outcome = $wpapi->postRequest( $query );
 	
 	#var_dump( $outcome );
+	$text = "";
 	$randomList = array();
 	
 	if ( array_key_exists( "query", $outcome ) ) {
@@ -71,6 +76,7 @@ if ( array_key_exists( "source", $props ) ) {
 
 							if ( array_key_exists( "*", $revision ) ) {
 
+								$text = $revision["*"];
 								$randomList = processContentRandom( $revision["*"] );
 							}
 						
@@ -89,10 +95,22 @@ if ( array_key_exists( "source", $props ) ) {
 		
 		if ( count( $randomList ) > 0 ) {
 			
-			$string = getRandomFromList( $randomList )." ~~~~ (PHP ".phpversion().")\n";
+			$string = getRandomFromList( $randomList )." — votat per ~~~~ (PHP ".phpversion().")\n";
 			
 			#var_dump( $string );
 			if ( array_key_exists( "target", $props ) ) {
+						
+				if ( $props["target"] === $props["source"] ) {
+					
+					if ( array_key_exists( "pretxt", $props ) ) {
+						$string = $text."\n\n".$props["pretxt"].": ".$string;
+					} else {
+						$string = $text."\n\n".$string;
+					}
+					
+				}
+				
+
 		
 				$params = array( "meta" => "tokens" );
 				$getToken = new Mwapi\SimpleRequest( 'query', $params  );

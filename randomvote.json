@@ -4,7 +4,8 @@
                 "user": "Mybot",
                 "password": "xxxx"
 	},
+	"pretxt": "I el guanyador/ora és",
 	"source": "Usuari:Toniher/RandomVote/Llista",
-	"target": "Usuari:Toniher/RandomVote/Resultat"
+	"target": "Usuari:Toniher/RandomVote/Llista"
 
 }
