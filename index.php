@@ -78,6 +78,7 @@ if ( array_key_exists( "source", $props ) ) {
 
 								$text = $revision["*"];
 								$randomList = processContentRandom( $revision["*"] );
+								//var_dump( $randomList );
 							}
 						
 						}
@@ -145,13 +146,14 @@ function processContentRandom( $content ) {
 	foreach ( $lines as $line ) {
 		if ( strpos( $line, "{{" ) === false ) {
 			
-			$line = str_replace( "[[", "", $line );
-			$line = str_replace( "]]", "", $line );
-			$line = str_replace( "*", "", $line );
-			$line = trim( $line );
-
-			if ( $line !== "" ) {
-				array_push( $pages, $line );
+			if ( strpos( $line, "*" ) !== false ) {
+			
+				$line = str_replace( "*", "", $line );
+				$line = trim( $line );
+	
+				if ( $line !== "" ) {
+					array_push( $pages, $line );
+				}
 			}
 		}
 	}
