@@ -6,6 +6,6 @@
 	},
 	"pretxt": "I el guanyador/ora és",
 	"source": "Usuari:Toniher/RandomVote/Llista",
-	"target": "Usuari:Toniher/RandomVote/Llista"
-
+	"target": "Usuari:Toniher/RandomVote/Llista",
+	"weight": true
 }

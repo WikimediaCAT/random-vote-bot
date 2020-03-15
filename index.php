@@ -39,6 +39,11 @@ if ( array_key_exists( "pretxt", $confjson ) ) {
 	$props["pretxt"] = $confjson["pretxt"];
 }
 
+if ( array_key_exists( "weight", $confjson ) ) {
+	$props["weight"] = $confjson["weight"];
+}
+
+
 $wpapi = Mwapi\MediawikiApi::newFromApiEndpoint( $wikiconfig["url"] );
 
 // Login
@@ -63,20 +68,19 @@ if ( array_key_exists( "source", $props ) ) {
 	if ( array_key_exists( "query", $outcome ) ) {
 		
 		if ( array_key_exists( "pages", $outcome["query"] ) ) {
-			
-			if ( count( $outcome["query"]["pages"] > 0 ) ) {
+						
+			if ( count( $outcome["query"]["pages"] ) > 0 ) {
 				
 				foreach ( $outcome["query"]["pages"] as $pageid => $page ) {
 				
 					if ( array_key_exists( "revisions", $page ) ) {
 						
-						if ( count( $page["revisions"] > 0 ) ) {
+						if ( count( $page["revisions"] ) > 0 ) {
 	
 							$revision = $page["revisions"][0];
 
 							if ( array_key_exists( "*", $revision ) ) {
 
-								$text = $revision["*"];
 								$randomList = processContentRandom( $revision["*"] );
 								//var_dump( $randomList );
 							}
@@ -91,47 +95,46 @@ if ( array_key_exists( "source", $props ) ) {
 		}
 		
 	}
-	
-	if ( array_key_exists( "target", $props ) ) {
+			
+	if ( count( array_keys( $randomList ) ) > 0 ) {
 		
-		if ( count( $randomList ) > 0 ) {
-			
-			$string = getRandomFromList( $randomList )." — votat per ~~~~ (PHP ".phpversion().")\n";
-			
-			#var_dump( $string );
-			if ( array_key_exists( "target", $props ) ) {
-						
-				if ( $props["target"] === $props["source"] ) {
+		$string = getRandomFromList( $randomList, $props["weight"] )." — votat per ~~~~ (PHP ".phpversion().")\n";
+		
+		// var_dump( $string ); exit();
+		if ( array_key_exists( "target", $props ) ) {
 					
-					if ( array_key_exists( "pretxt", $props ) ) {
-						$string = $text."\n\n".$props["pretxt"].": ".$string;
-					} else {
-						$string = $text."\n\n".$string;
-					}
-					
+			if ( $props["target"] === $props["source"] ) {
+				
+				if ( array_key_exists( "pretxt", $props ) ) {
+					$string = $text."\n\n".$props["pretxt"].": ".$string;
+				} else {
+					$string = $text."\n\n".$string;
 				}
 				
-
-		
-				$params = array( "meta" => "tokens" );
-				$getToken = new Mwapi\SimpleRequest( 'query', $params  );
-				$outcome = $wpapi->postRequest( $getToken );
+			}
 			
-				if ( array_key_exists( "query", $outcome ) ) {
-					if ( array_key_exists( "tokens", $outcome["query"] ) ) {
-						if ( array_key_exists( "csrftoken", $outcome["query"]["tokens"] ) ) {
-							
-							$token = $outcome["query"]["tokens"]["csrftoken"];
-							$params = array( "title" => $props["target"], "summary" => "Vot aleatori del bot", "text" => $string, "token" => $token );
-							$sendText = new Mwapi\SimpleRequest( 'edit', $params  );
-							$outcome = $wpapi->postRequest( $sendText );			
+
+			$params = array( "meta" => "tokens" );
+			$getToken = new Mwapi\SimpleRequest( 'query', $params  );
+			$outcome = $wpapi->postRequest( $getToken );
+		
+			if ( array_key_exists( "query", $outcome ) ) {
+				if ( array_key_exists( "tokens", $outcome["query"] ) ) {
+					if ( array_key_exists( "csrftoken", $outcome["query"]["tokens"] ) ) {
 						
-						}				
-					}
+						$token = $outcome["query"]["tokens"]["csrftoken"];
+						$params = array( "title" => $props["target"], "summary" => "Vot aleatori del bot", "text" => $string, "token" => $token );
+						$sendText = new Mwapi\SimpleRequest( 'edit', $params  );
+						$outcome = $wpapi->postRequest( $sendText );			
+					
+					}				
 				}
 			}
-		
+		} else {
+			
+			echo $string;
 		}
+	
 	}
 	
 }
@@ -152,7 +155,17 @@ function processContentRandom( $content ) {
 				$line = trim( $line );
 	
 				if ( $line !== "" ) {
-					array_push( $pages, $line );
+					
+					$pweight = 100;
+					
+					$parts = preg_split("/\s+/", $line );
+
+					if ( count( $parts ) > 1 ) {
+						
+						$pweight = $parts[1];
+					}
+					
+					$pages[$parts[0]] = $pweight;
 				}
 			}
 		}
@@ -163,9 +176,33 @@ function processContentRandom( $content ) {
 }
 
 
-function getRandomFromList( $array ) {
+function getRandomFromList( $array, $weighting=false ) {
 	
-	return $array[array_rand($array)];
+	if ( $weighting ) {
+		
+		return getRandomWeightedElement( $array );
+		
+	} else {
 	
+		$list = array_keys( $array );
+		sort( $list );
+		return $list[array_rand($list)];
+
+	}
+	
+	
+
 }
+
+// https://stackoverflow.com/questions/445235/generating-random-results-by-weight-in-php
+function getRandomWeightedElement(array $weightedValues) {
+   $rand = mt_rand(1, (int) array_sum($weightedValues));
+
+   foreach ($weightedValues as $key => $value) {
+	 $rand -= $value;
+	 if ($rand <= 0) {
+	   return $key;
+	 }
+   }
+ }
 
